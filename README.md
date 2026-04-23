@@ -1,41 +1,123 @@
-# Deep Learning for Multi-Factor Portfolio Construction
-## Academic Project: FM 3056 – Financial Simulation and Artificial Intelligence Models
-### Benchmarking K-Means, Deep Embedded Clustering (DEC), and Style-Aware Autoencoders
-### 📌 Project Overview
-Developed as part of the Financial Simulation and Artificial Intelligence Models (FM 3056) curriculum, this project explores the boundary between classical financial econometrics and modern deep learning. The objective is to construct a production-grade quantitative pipeline that clusters 101 equities (S&P 500 Group 2) and optimizes portfolios by comparing traditional statistical methods against non-linear AI architectures.
-### 🏗️ The Quantitative Pipeline
-The research is structured as a modular "Quant Lab" workflow, where each notebook serves a specific stage in the financial simulation process:
+# 🤖 From Price Patterns to Portfolio DNA
+### Benchmarking AI-Driven Clustering Against Traditional Methods in Equity Allocation
 
-1. Data Ingestion & Risk Profiling
+> **Course:** FM 3056 – Financial Simulation & AI Models  
+> **Universe:** 100 S&P 500 Equities | **Period:** 2 Years of Daily Price Data  
+> **Stack:** Python · TensorFlow/Keras · scikit-learn · yfinance · SciPy · Plotly
 
+---
 
-01_Data_Collection.ipynb: Automated extraction of historical price data and S&P 500 benchmarks.
+## 📌 Overview
 
-02_Price_Profile.ipynb: Implementation of log-return transformations to ensure stationarity for AI model training.
+This project builds an end-to-end quantitative pipeline that answers a question every portfolio manager faces:
 
-03_Volatility_Profile.ipynb: Simulation of the Volatility Term Structure (Weekly, Monthly, and Quarterly horizons) to create a multi-dimensional risk signature for each asset.
+> *Does more sophisticated pattern recognition actually translate into better portfolios?*
 
+Three clustering frameworks — each representing a different theory of what makes stocks behave similarly — are used to construct and backtest long-only portfolios against an equal-weight benchmark, with performance evaluated on return, volatility, Sharpe ratio, and maximum drawdown.
 
-2. Comparative AI Clustering ArchitecturesWe benchmark three distinct "Financial DNA" signatures to group stocks:
+---
 
+## 🗂️ Project Structure
 
-04_Traditional_KMeans.ipynb: Baseline clustering using linear correlations of price returns.
+| Notebook | Description |
+|---|---|
+| `1_Data.ipynb` | Data ingestion, cleaning, and persistence via yfinance |
+| `2_Price_Profile.ipynb` | Log return calculation, cumulative returns, structural classification |
+| `3_Volatility_Profile.ipynb` | Rolling realized volatility across weekly/monthly/quarterly horizons |
+| `4_KMeans.ipynb` | Traditional K-Means clustering with PCA, elbow & silhouette selection |
+| `5_DEC.ipynb` | Denoising Autoencoder + Deep Embedded Clustering on latent features |
+| `6_StyleDEC.ipynb` | Triple-profile fusion (Price + Volatility + Fundamentals) with StyleDEC |
+| `7_Portfolios.ipynb` | Mean-variance optimisation, backtesting, and strategy comparison |
 
-05_Deep_Embedded_Clustering_(DEC).ipynb: A deep learning approach using a Bottleneck Autoencoder to compress 500 days of market "noise" into a 20-dimensional latent space, identifying non-linear behavioral patterns.
+---
 
-06_StyleDEC_Fusion.ipynb: The most advanced model in the project. It fuses Price, Volatility, and Fundamental Style Factors (P/E, D/E, Yield) into a "Triple-Profile" input, trained on a style-aware neural network.
+## 🔧 Methodology
 
+### 1. Traditional K-Means
+Clusters 100 stocks by **linear return correlations** using PCA-compressed daily log returns as features. Serves as the interpretable baseline. Optimal cluster count selected via silhouette score.
 
-3. Portfolio Synthesis & Simulation
+### 2. Deep Embedded Clustering (DEC)
+A **denoising autoencoder** (256 → 128 → 20 bottleneck) is trained on each stock's 2-year return history, compressing it into a 20-dimensional financial fingerprint. K-Means is then applied in this learned latent space rather than raw return space — capturing nonlinear patterns invisible to traditional methods.
 
+### 3. StyleDEC
+Goes further by **fusing three factor profiles** into a single neural representation:
+- 📈 **Price Profile** — PCA-compressed return dynamics
+- 📉 **Volatility Profile** — Annualized realized volatility at weekly, monthly, and quarterly horizons
+- 🏢 **Style Profile** — Fundamental factors: P/E ratio, D/E ratio, Dividend Yield
 
-07_Portfolio_Optimization.ipynb: Final synthesis using Mean-Variance Optimization (MVO). We simulate three competing strategies (K-Means, DEC, and StyleDEC) under a 10% individual position cap constraint to maximize utility ($U = R_p - \frac{\gamma}{2}\sigma_p^2$).
+Each stock's cluster assignment reflects not just how it *moved*, but what kind of company it *is*.
 
-### 🛠️ Tech Stack & AI Models
-AI/ML: TensorFlow/Keras (Autoencoders), Scikit-Learn (Unsupervised Learning, PCA).
+### 4. Portfolio Construction
+Each clustering output feeds a **mean-variance optimiser** (maximising utility = return − γ/2 × variance) with per-stock position caps. Portfolios are backtested on actual historical price paths and compared against a naive equal-weight benchmark.
 
-Simulation: SciPy.optimize (Constrained Nonlinear Optimization), NumPy, Pandas.
+---
 
-Data Infrastructure: yFinance API, PyArrow (Parquet Format).
+## 📊 Key Findings
 
-Visualization: Plotly (Interactive Risk Maps), Seaborn, Matplotlib.
+All three clustering-based strategies **dramatically outperformed equal-weight allocation** on a risk-adjusted basis — validating that intelligent clustering adds real value in portfolio construction.
+
+The more interesting finding was the tradeoff *between* methods:
+
+- **DEC and StyleDEC** delivered higher absolute returns by identifying richer behavioural patterns
+- **K-Means** achieved the best Sharpe ratio through tighter, more homogeneous clusters that naturally steered the optimiser toward lower-risk positions
+- **Equal-weight** was outperformed across every metric by all three methods
+
+> The right clustering method depends on **investor mandate** — K-Means for capital preservation, StyleDEC for return-seeking investors comfortable with higher volatility.
+
+---
+
+## ⚠️ Limitations
+
+- Backtest covers a **predominantly bullish 2-year window** (2024–2026). StyleDEC's fundamental factors are theoretically better suited to bear markets and sideways regimes not captured here.
+- Fundamental data (P/E, D/E, Yield) fetched at a **single point in time** — does not account for factor drift over the sample period.
+- All strategies use **historical covariance** for optimisation, which may not reflect future risk structure.
+
+---
+
+## 🚀 How to Run
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/yourusername/portfolio-dna.git
+cd portfolio-dna
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Run notebooks in order
+# Start with 1_Data.ipynb and proceed sequentially
+```
+
+### Requirements
+```
+yfinance
+pandas
+numpy
+scikit-learn
+tensorflow
+scipy
+plotly
+matplotlib
+seaborn
+pyarrow
+```
+
+---
+
+## 📁 Data Files Generated
+
+| File | Contents |
+|---|---|
+| `group2_stocks.parquet` | Cleaned daily adjusted close prices |
+| `benchmark.parquet` | S&P 500 benchmark prices |
+| `labels_kmeans.csv` | K-Means cluster assignments |
+| `labels_dec.csv` | DEC cluster assignments |
+| `labels_style_dec.csv` | StyleDEC cluster assignments |
+
+---
+
+## 🙏 Acknowledgements
+
+Built as part of **FM 3056 – Financial Simulation & AI Models**.  
+Data sourced via [yfinance](https://github.com/ranaroussi/yfinance).  
+Clustering methodology inspired by [Xie et al. (2016) — Unsupervised Deep Embedding for Clustering Analysis](https://arxiv.org/abs/1511.06335).

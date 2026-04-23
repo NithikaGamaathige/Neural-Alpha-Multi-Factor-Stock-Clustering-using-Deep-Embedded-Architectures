@@ -74,20 +74,6 @@ The more interesting finding was the tradeoff *between* methods:
 
 ---
 
-## 🚀 How to Run
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/yourusername/portfolio-dna.git
-cd portfolio-dna
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Run notebooks in order
-# Start with 1_Data.ipynb and proceed sequentially
-```
-
 ### Requirements
 ```
 yfinance
